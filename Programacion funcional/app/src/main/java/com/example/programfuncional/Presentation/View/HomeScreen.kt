@@ -1,5 +1,6 @@
 package com.example.programfuncional.Presentation.View
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -11,6 +12,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.KeyboardArrowRight
@@ -20,14 +22,17 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LinearProgressIndicator
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
@@ -42,9 +47,7 @@ import com.example.programfuncional.R
 
 @Composable
 fun HomeScreen(navController: NavHostController, rutaViewModel: RutaViewModel) {
-
     val rutas by rutaViewModel.rutas.collectAsState()
-
 
     Column(
         modifier = Modifier
@@ -52,97 +55,117 @@ fun HomeScreen(navController: NavHostController, rutaViewModel: RutaViewModel) {
             .background(Color.White)
     ) {
         Spacer(modifier = Modifier.height(40.dp))
-        // Progreso general
-        Box(
+
+        // Sección de progreso general
+        Surface(
             modifier = Modifier
                 .fillMaxWidth()
-                .background(Color(0xFF4CAF50))
-                .padding(16.dp)
+                .padding(horizontal = 16.dp),
+            color = Color(0xFF4CAF50),
+            shape = RoundedCornerShape(12.dp),
+            tonalElevation = 4.dp
         ) {
-
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier.fillMaxWidth()
-            ) {
-
-                Text(
-                    "Cuánto has avanzado",
-                    color = Color.Black,
-                    fontWeight = FontWeight.Bold,
-                    modifier = Modifier.weight(1f)
-                )
-
-                // Imagen y número
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Text("10", color = Color.Black, fontWeight = FontWeight.Bold)
-                    Spacer(modifier = Modifier.width(4.dp))
-                    androidx.compose.foundation.Image(
-                        painter = painterResource(id = R.mipmap.cristal),
-                        contentDescription = "Cristal",
-                        modifier = Modifier.height(24.dp)
+            Column(modifier = Modifier.padding(16.dp)) {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Text(
+                        "Cuánto has avanzado",
+                        color = Color.Black,
+                        fontWeight = FontWeight.Bold,
+                        style = MaterialTheme.typography.titleMedium,
+                        modifier = Modifier.weight(1f)
                     )
+
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Text("10", color = Color.Black, fontWeight = FontWeight.Bold)
+                        Spacer(modifier = Modifier.width(4.dp))
+                        Image(
+                            painter = painterResource(id = R.mipmap.cristal),
+                            contentDescription = "Cristal",
+                            modifier = Modifier.height(24.dp)
+                        )
+                    }
                 }
-            }
 
-            Spacer(modifier = Modifier.height(8.dp))
+                Spacer(modifier = Modifier.height(12.dp))
 
-            Column(modifier = Modifier.padding(top = 36.dp)) {
                 LinearProgressIndicator(
                     progress = 0.0f,
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(8.dp),
+                        .height(10.dp)
+                        .clip(RoundedCornerShape(5.dp)),
                     color = Color.White,
                     trackColor = Color(0xFFB2DFDB)
                 )
-                Text("0%", color = Color.Black)
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                Text("0%", color = Color.Black, style = MaterialTheme.typography.bodySmall)
             }
         }
 
-        Spacer(modifier = Modifier.height(40.dp))
+        Spacer(modifier = Modifier.height(32.dp))
+
         // Caja informativa
-        Box(
+        Surface(
             modifier = Modifier
                 .fillMaxWidth()
-                .background(Color.Black)
-                .padding(16.dp)
+                .padding(horizontal = 16.dp),
+            color = Color.Black,
+            shape = RoundedCornerShape(12.dp),
+            tonalElevation = 2.dp
         ) {
             Text(
                 text = "Aquí encontrarás las opciones de aprendizaje",
                 color = Color.White,
-                fontWeight = FontWeight.Medium
+                fontWeight = FontWeight.Medium,
+                style = MaterialTheme.typography.bodyMedium,
+                modifier = Modifier.padding(16.dp)
             )
         }
 
-        Spacer(modifier = Modifier.height(15.dp))
-        // Rutas de aprendizaje
-        Column(modifier = Modifier.padding(16.dp)) {
+        Spacer(modifier = Modifier.height(24.dp))
+
+        // Título rutas
+        Column(modifier = Modifier.padding(horizontal = 16.dp)) {
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier.fillMaxWidth()
             ) {
-                Text("Rutas de aprendizaje", fontWeight = FontWeight.Bold)
+                Text(
+                    "Rutas de aprendizaje",
+                    fontWeight = FontWeight.Bold,
+                    style = MaterialTheme.typography.titleMedium
+                )
                 Spacer(modifier = Modifier.weight(1f))
-                Icon(imageVector = Icons.Default.KeyboardArrowRight, contentDescription = null)
+                Icon(
+                    imageVector = Icons.Default.KeyboardArrowRight,
+                    contentDescription = null,
+                    tint = Color.DarkGray
+                )
             }
 
             Spacer(modifier = Modifier.height(16.dp))
 
-
-                rutas.forEach { ruta ->
-                    LearningPathCard(
-                        title = ruta.nombre,
-                        progress = 0f,
-                        background = Color(0xFFA0C1A7),
-                        onClick = {
-                            navController.navigate("${NavRoutes.Conceptos}?rutaId=${ruta.rutaId}")
-                        }
-                    )
-                }
+            rutas.forEach { ruta ->
+                LearningPathCard(
+                    title = ruta.nombre,
+                    progress = 0f,
+                    background = Color(0xFFA0C1A7),
+                    onClick = {
+                        navController.navigate("${NavRoutes.Conceptos}?rutaId=${ruta.rutaId}")
+                    }
+                )
+                Spacer(modifier = Modifier.height(12.dp))
             }
-            Spacer(modifier = Modifier.weight(1f))
+        }
 
-            BottomNavigationBar(navController = navController, currentRoute = NavRoutes.Home)
+        Spacer(modifier = Modifier.weight(1f))
+
+        BottomNavigationBar(navController = navController, currentRoute = NavRoutes.Home)
     }
 }
 

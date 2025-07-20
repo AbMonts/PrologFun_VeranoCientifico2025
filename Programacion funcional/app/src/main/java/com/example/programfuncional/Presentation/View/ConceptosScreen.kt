@@ -34,10 +34,14 @@ import androidx.navigation.NavHostController
 import com.example.programfuncional.Navigation.NavRoutes
 import com.example.programfuncional.R
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.draw.clip
 import androidx.navigation.NavController
 import com.example.programfuncional.Presentation.ViewModel.ProgresoViewModel
 import com.example.programfuncional.Presentation.ViewModel.TemaViewModel
@@ -49,78 +53,90 @@ fun ConceptosScreen(
     ProgresoViewModel: ProgresoViewModel,
     rutaId: Int
 ) {
-    // Obtener lista de temas por ruta desde el ViewModel
     LaunchedEffect(rutaId) {
         TemaViewModel.cargarTemasPorRuta(rutaId)
     }
-    val temas by TemaViewModel.temasPorRuta.collectAsState()
 
+    val temas by TemaViewModel.temasPorRuta.collectAsState()
 
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(bottom = 70.dp)
             .background(Color.White)
+            .padding(bottom = 70.dp)
     ) {
         Spacer(modifier = Modifier.height(40.dp))
 
-        // Progreso con cristal (puedes conectar con progreso real más adelante)
-        Box(
+        // Progreso superior
+        Surface(
             modifier = Modifier
                 .fillMaxWidth()
-                .background(Color(0xFF4CAF50))
-                .padding(16.dp)
+                .padding(horizontal = 16.dp),
+            color = Color(0xFF4CAF50),
+            shape = RoundedCornerShape(12.dp),
+            tonalElevation = 4.dp
         ) {
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Text(
-                    "Tu progreso en conceptos",
-                    color = Color.Black,
-                    fontWeight = FontWeight.Bold,
-                    modifier = Modifier.weight(1f)
-                )
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Text("10", color = Color.Black, fontWeight = FontWeight.Bold)
-                    Spacer(modifier = Modifier.width(4.dp))
-                    Image(
-                        painter = painterResource(id = R.mipmap.cristal),
-                        contentDescription = "Cristal",
-                        modifier = Modifier.height(24.dp)
+            Column(modifier = Modifier.padding(16.dp)) {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Text(
+                        "Tu progreso en conceptos",
+                        color = Color.Black,
+                        fontWeight = FontWeight.Bold,
+                        style = MaterialTheme.typography.titleMedium,
+                        modifier = Modifier.weight(1f)
                     )
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Text("10", color = Color.Black, fontWeight = FontWeight.Bold)
+                        Spacer(modifier = Modifier.width(4.dp))
+                        Image(
+                            painter = painterResource(id = R.mipmap.cristal),
+                            contentDescription = "Cristal",
+                            modifier = Modifier.height(24.dp)
+                        )
+                    }
                 }
-            }
 
-            Column(modifier = Modifier.padding(top = 36.dp)) {
+                Spacer(modifier = Modifier.height(12.dp))
+
                 LinearProgressIndicator(
                     progress = 0.0f,
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(8.dp),
+                        .height(10.dp)
+                        .clip(RoundedCornerShape(5.dp)),
                     color = Color.White,
                     trackColor = Color(0xFFB2DFDB)
                 )
-                Text("0%", color = Color.Black)
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                Text("0%", color = Color.Black, style = MaterialTheme.typography.bodySmall)
             }
         }
 
-        Spacer(modifier = Modifier.height(40.dp))
+        Spacer(modifier = Modifier.height(32.dp))
 
-        Box(
+        // Caja informativa
+        Surface(
             modifier = Modifier
                 .fillMaxWidth()
-                .background(Color.Black)
-                .padding(16.dp)
+                .padding(horizontal = 16.dp),
+            color = Color.Black,
+            shape = RoundedCornerShape(12.dp),
+            tonalElevation = 2.dp
         ) {
             Text(
                 text = "Este apartado de teoría te proporciona una base sólida para entender los fundamentos, facilita la resolución de problemas y permite predecir y comprender mejor diversos fenómenos",
                 color = Color.White,
-                fontSize = 14.sp
+                fontSize = 14.sp,
+                modifier = Modifier.padding(16.dp)
             )
         }
 
-        Spacer(modifier = Modifier.height(20.dp))
+        Spacer(modifier = Modifier.height(24.dp))
 
         LazyColumn(
             contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
@@ -131,9 +147,17 @@ fun ConceptosScreen(
                     verticalAlignment = Alignment.CenterVertically,
                     modifier = Modifier.fillMaxWidth()
                 ) {
-                    Text("Orden de aprendizaje", fontWeight = FontWeight.Bold)
+                    Text(
+                        "Orden de aprendizaje",
+                        fontWeight = FontWeight.Bold,
+                        style = MaterialTheme.typography.titleMedium
+                    )
                     Spacer(modifier = Modifier.weight(1f))
-                    Icon(Icons.Default.KeyboardArrowRight, contentDescription = null)
+                    Icon(
+                        imageVector = Icons.Default.KeyboardArrowRight,
+                        contentDescription = null,
+                        tint = Color.DarkGray
+                    )
                 }
 
                 Spacer(modifier = Modifier.height(16.dp))
@@ -148,6 +172,7 @@ fun ConceptosScreen(
                         navController.navigate(NavRoutes.tema(tema.temaId))
                     }
                 )
+                Spacer(modifier = Modifier.height(12.dp))
             }
 
             item {
@@ -155,15 +180,14 @@ fun ConceptosScreen(
             }
         }
 
-
-
         BottomNavigationBar(
             navController = navController,
             currentRoute = NavRoutes.Conceptos
         )
-    }
-}
 
+    }
+
+}
 
 @Composable
 fun ConceptCardConProgreso(
