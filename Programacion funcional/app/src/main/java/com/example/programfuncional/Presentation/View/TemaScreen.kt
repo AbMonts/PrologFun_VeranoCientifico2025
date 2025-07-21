@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.KeyboardArrowLeft
 import androidx.compose.material.icons.filled.KeyboardArrowRight
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -88,7 +89,7 @@ fun TemaScreen(
                 )
                 Spacer(modifier = Modifier.height(8.dp))
                 Text(
-                    "${(progreso * 100).toInt()}%",
+                    "${(progreso * 100).toInt()}%", //se debe ir guardando el progreso hasta el 100%, no se puede reducir
                     color = Color.White,
                     style = MaterialTheme.typography.bodySmall
                 )
@@ -180,32 +181,74 @@ fun TemaScreen(
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(16.dp)
+                .padding(26.dp)
         ) {
-            Button(
-                onClick = {
-                    if (indice < parrafos.size - 1) {
-                        viewModel.siguienteParrafo()
-                    } else {
-                        viewModel.marcarComoCompletado()
-                        onFinalizar()
-                    }
-                },
-                modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(10.dp),
-                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF2E7D32))
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.fillMaxWidth()
             ) {
-                Text(
-                    text = if (indice < parrafos.size - 1) "Siguiente" else "Finalizar",
-                    color = Color.White
-                )
-                Spacer(modifier = Modifier.width(4.dp))
-                Icon(
-                    imageVector = Icons.Default.KeyboardArrowRight,
-                    contentDescription = null,
-                    tint = Color.White
-                )
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    modifier = Modifier.padding(horizontal = 16.dp).width(150.dp)) {
+                    Button(
+                        onClick = {
+                            if (indice > 0) {
+                                viewModel.anteriorParrafo()
+                            }
+                        },
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(10.dp),
+                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF2E7D32)),
+                        enabled = indice > 0
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.KeyboardArrowLeft,
+                            contentDescription = null,
+                            tint = Color.White
+                        )
+                        Text(
+                            text = if (indice > 0) "Anterior" else "",
+                            color = Color.White
+                        )
+                        Spacer(modifier = Modifier.width(4.dp))
+
+                    }
+                }
+
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    modifier = Modifier.padding(horizontal = 16.dp).width(150.dp)) {
+                    Button(
+                        onClick = {
+                            if (indice < parrafos.size - 1) {
+                                viewModel.siguienteParrafo()
+                            } else {
+                                viewModel.marcarComoCompletado() //para poner en la pantalla conceptos un boton de completado
+                                onFinalizar()
+                            }
+                        },
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(10.dp),
+                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF2E7D32))
+                    ) {
+                        Text(
+                            text = if (indice < parrafos.size - 1) "Siguiente" else "Finalizar",
+                            color = Color.White
+                        )
+                        Spacer(modifier = Modifier.width(4.dp))
+                        Icon(
+                            imageVector = Icons.Default.KeyboardArrowRight,
+                            contentDescription = null,
+                            tint = Color.White
+                        )
+                    }
+                }
             }
+
+
+
+
+
         }
     }
 }

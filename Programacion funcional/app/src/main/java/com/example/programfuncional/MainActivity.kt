@@ -34,9 +34,9 @@ class MainActivity : ComponentActivity() {
         lifecycleScope.launch {
             app.temaRepository.insertarRutas(
                 listOf(
-                    RutaAprendizaje(rutaId = 1, nombre = "Teoría"),
-                    RutaAprendizaje(rutaId = 2, nombre = "Ejercicios"),
-                    RutaAprendizaje(rutaId = 3, nombre = "Quizzes")
+                    RutaAprendizaje(rutaId = 1, nombre = "Teoría", porcentaje = 0f, totTemas = 8),
+                    RutaAprendizaje(rutaId = 2, nombre = "Ejercicios", porcentaje = 0f, totTemas = 0),
+                    RutaAprendizaje(rutaId = 3, nombre = "Quizzes", porcentaje = 0f, totTemas = 0)
                 )
             )
         }

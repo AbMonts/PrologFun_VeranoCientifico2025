@@ -56,7 +56,7 @@ fun HomeScreen(navController: NavHostController, rutaViewModel: RutaViewModel) {
     ) {
         Spacer(modifier = Modifier.height(40.dp))
 
-        // Sección de progreso general
+
         Surface(
             modifier = Modifier
                 .fillMaxWidth()
@@ -129,7 +129,7 @@ fun HomeScreen(navController: NavHostController, rutaViewModel: RutaViewModel) {
 
         Spacer(modifier = Modifier.height(24.dp))
 
-        // Título rutas
+
         Column(modifier = Modifier.padding(horizontal = 16.dp)) {
             Row(
                 verticalAlignment = Alignment.CenterVertically,
@@ -153,7 +153,7 @@ fun HomeScreen(navController: NavHostController, rutaViewModel: RutaViewModel) {
             rutas.forEach { ruta ->
                 LearningPathCard(
                     title = ruta.nombre,
-                    progress = 0f,
+                    progress = ruta.porcentaje,
                     background = Color(0xFFA0C1A7),
                     onClick = {
                         navController.navigate("${NavRoutes.Conceptos}?rutaId=${ruta.rutaId}")

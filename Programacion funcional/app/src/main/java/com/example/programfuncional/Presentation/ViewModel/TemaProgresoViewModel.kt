@@ -22,6 +22,12 @@ import kotlinx.coroutines.launch
 
 class TemaViewModel(private val repository: TemaRepository) : ViewModel() {
 
+
+    suspend fun obtenerRutaPorId(rutaId: Int): RutaAprendizaje? {
+        return repository.getRutaPorId(rutaId)
+    }
+
+
     private val _tema = MutableStateFlow<Tema?>(null)
     val tema: StateFlow<Tema?> = _tema
 
@@ -43,6 +49,7 @@ class TemaViewModel(private val repository: TemaRepository) : ViewModel() {
                 .collect {
                     _temasPorRuta.value = it
                 }
+
         }
     }
 
@@ -50,7 +57,6 @@ class TemaViewModel(private val repository: TemaRepository) : ViewModel() {
         return repository.getTemasByRuta(rutaId).distinctUntilChanged()
             .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
     }
-
 
     fun cargarTema(temaId: Int) {
         viewModelScope.launch {
@@ -62,6 +68,12 @@ class TemaViewModel(private val repository: TemaRepository) : ViewModel() {
     fun siguienteParrafo() {
         if (_indice.value < parrafos.value.size - 1) {
             _indice.value++
+        }
+    }
+
+    fun anteriorParrafo() {
+        if (_indice.value > 0) {
+            _indice.value--
         }
     }
 
@@ -82,6 +94,8 @@ class TemaViewModel(private val repository: TemaRepository) : ViewModel() {
     val rutasDisponibles: StateFlow<List<RutaAprendizaje>> =
         repository.getRutas()
             .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
+    
+
 }
 
 
@@ -98,7 +112,7 @@ class TemaViewModelFactory(private val repository: TemaRepository) : ViewModelPr
 class RutaViewModel(private val repository: TemaRepository) : ViewModel() {
 
     val rutas: StateFlow<List<RutaAprendizaje>> = repository.getRutas()
-        .map { it } // aquí puedes transformar si necesitas
+        .map { it }
         .stateIn(
             viewModelScope,
             SharingStarted.WhileSubscribed(5000),
@@ -110,11 +124,17 @@ class ProgresoViewModel(private val repository: ProgresoRepository) : ViewModel(
     fun getProgreso(temaId: Int): LiveData<Progreso> =
         repository.getProgreso(temaId).asLiveData()
 
-
-
     fun temaCompleto(temaId: Int, puntos: Int) {
         viewModelScope.launch {
             repository.temaCompleto(temaId, puntos)
         }
+
+
     }
+    fun getProgresoRuta(rutaId: Int): StateFlow<Float> {
+        return repository.getProgresoRuta(rutaId)
+            .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), 0f)
+    }
+
+
 }

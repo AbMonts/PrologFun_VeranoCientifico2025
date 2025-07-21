@@ -10,6 +10,8 @@ data class Tema(
     val rutaId: Int,
     val nombre: String,
     val informacion: String, // texto largo separado por \n
-    val ejemplos: String
+    val ejemplos: String,
+    val puntos: Int,
+    val porcentaje: Int
 )
 

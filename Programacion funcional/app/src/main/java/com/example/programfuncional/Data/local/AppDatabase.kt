@@ -4,6 +4,7 @@ import android.content.Context
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
+import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
 import com.example.programfuncional.Data.model.Progreso
 import com.example.programfuncional.Data.model.RutaAprendizaje
@@ -13,15 +14,36 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 
-@Database(entities = [RutaAprendizaje::class, Tema::class, Progreso::class], version = 1)
+@Database(entities = [RutaAprendizaje::class, Tema::class, Progreso::class], version = 4)
 abstract class AppDatabase : RoomDatabase() {
     abstract fun temaDao(): TemaDAO
     abstract fun progresoDao(): ProgresoDAO
     abstract fun rutaDao(): RutaDAO
 
+
     companion object {
         @Volatile
         private var INSTANCE: AppDatabase? = null
+
+        val MIGRATION_1_2 = object : Migration(1, 2) {
+            override fun migrate(database: SupportSQLiteDatabase) {
+                database.execSQL("ALTER TABLE Progreso ADD COLUMN porcentaje REAL NOT" +
+                        " NULL DEFAULT 0.0")
+            }
+        }
+        val MIGRATION_2_3 = object : Migration(2, 3) {
+            override fun migrate(database: SupportSQLiteDatabase) {
+                database.execSQL("ALTER TABLE RutaAprendizaje ADD COLUMN porcentaje REAL NOT NULL DEFAULT 0.0")
+                database.execSQL("ALTER TABLE RutaAprendizaje ADD COLUMN totTemas INTEGER NOT NULL DEFAULT 0")
+            }
+        }
+        val MIGRATION_3_4 = object : Migration(3, 4) {
+            override fun migrate(database: SupportSQLiteDatabase) {
+                database.execSQL("ALTER TABLE Tema ADD COLUMN porcentaje INTEGER NOT NULL DEFAULT 0")
+                database.execSQL("ALTER TABLE Tema ADD COLUMN puntos INTEGER NOT NULL DEFAULT 0")
+            }
+        }
+
 
         fun getDatabase(context: Context): AppDatabase {
             return INSTANCE ?: synchronized(this) {
@@ -30,6 +52,7 @@ abstract class AppDatabase : RoomDatabase() {
                     AppDatabase::class.java,
                     "program_funcional.db"
                 )
+                    .addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4)
                     .addCallback(object : RoomDatabase.Callback() {
                         override fun onCreate(db: SupportSQLiteDatabase) {
                             super.onCreate(db)
@@ -42,9 +65,9 @@ abstract class AppDatabase : RoomDatabase() {
 
                                         rutaDao.insertAll(
                                             listOf(
-                                                RutaAprendizaje(1, "Teoría"),
-                                                RutaAprendizaje(2, "Ejercicios"),
-                                                RutaAprendizaje(3, "Quizzes")
+                                                RutaAprendizaje(rutaId = 1, nombre = "Teoría", porcentaje = 0f, totTemas = 8),
+                                                RutaAprendizaje(rutaId = 2, nombre = "Ejercicios", porcentaje = 0f, totTemas = 0),
+                                                RutaAprendizaje(rutaId = 3, nombre = "Quizzes", porcentaje = 0f, totTemas = 0)
                                             )
                                         )
 
@@ -74,7 +97,9 @@ abstract class AppDatabase : RoomDatabase() {
                             "Este paradigma facilita la paralelización y el razonamiento sobre el código mediante composiciones de funciones.",
                     ejemplos = "-- Definición de una función pura que suma dos números\n" +
                             "suma :: Int -> Int -> Int\n" +
-                            "suma a b = a + b"
+                            "suma a b = a + b",
+                    puntos = 10,
+                    porcentaje = 0
                 ),
                 Tema(
                     temaId = 2,
@@ -89,7 +114,9 @@ abstract class AppDatabase : RoomDatabase() {
                             "edad = 20\n\n" +
                             "-- Tupla con diferentes tipos\n" +
                             "persona :: (String, Int)\n" +
-                            "persona = (\"Ana\", 30)"
+                            "persona = (\"Ana\", 30)",
+                    puntos = 10,
+                    porcentaje = 0
                 ),
                 Tema(
                     temaId = 3,
@@ -103,7 +130,9 @@ abstract class AppDatabase : RoomDatabase() {
                             "multiplica :: Int -> Int -> Int\n" +
                             "multiplica x y = x * y\n\n" +
                             "-- Función anónima que suma 1 a un valor\n" +
-                            "\\x -> x + 1"
+                            "\\x -> x + 1",
+                    puntos = 10,
+                    porcentaje = 0
                 ),
                 Tema(
                     temaId = 4,
@@ -118,7 +147,9 @@ abstract class AppDatabase : RoomDatabase() {
                             "numeros = [1..10]\n\n" +
                             "-- Intervalo de números pares del 2 al 20\n" +
                             "pares :: [Int]\n" +
-                            "pares = [2,4..20]"
+                            "pares = [2,4..20]",
+                    puntos = 10,
+                    porcentaje = 0
                 ),
                 Tema(
                     temaId = 5,
@@ -133,7 +164,9 @@ abstract class AppDatabase : RoomDatabase() {
                             "producto = 4 * 7\n\n" +
                             "-- Uso de operadores personalizados\n" +
                             "infixl 6 <-->\n" +
-                            "a <--> b = a + b"
+                            "a <--> b = a + b",
+                    puntos = 10,
+                    porcentaje = 0
                 ),
                 Tema(
                     temaId = 6,
@@ -148,7 +181,9 @@ abstract class AppDatabase : RoomDatabase() {
                             "-- Filtrar los números pares\n" +
                             "pares = filter even numeros\n\n" +
                             "-- Sumar todos los elementos\n" +
-                            "suma = foldr (+) 0 numeros"
+                            "suma = foldr (+) 0 numeros",
+                    puntos = 10,
+                    porcentaje = 0
                 ),
                 Tema(
                     temaId = 7,
@@ -163,7 +198,9 @@ abstract class AppDatabase : RoomDatabase() {
                             "-- Función para calcular número de nodos\n" +
                             "numNodos :: Arbol a -> Int\n" +
                             "numNodos (Hoja _) = 1\n" +
-                            "numNodos (Nodo izq der) = 1 + numNodos izq + numNodos der"
+                            "numNodos (Nodo izq der) = 1 + numNodos izq + numNodos der",
+                    puntos = 10,
+                    porcentaje = 0
                 ),
                 Tema(
                     temaId = 8,
@@ -176,10 +213,15 @@ abstract class AppDatabase : RoomDatabase() {
                     ejemplos = "-- Secuencia infinita de números naturales\n" +
                             "naturales = [1..]\n\n" +
                             "-- Tomar los primeros 5 valores\n" +
-                            "cincoPrimeros = take 5 naturales"
+                            "cincoPrimeros = take 5 naturales",
+                    puntos = 10,
+                    porcentaje = 0
                 )
             )
         }
     }
+
+
+
 }
 

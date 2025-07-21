@@ -41,6 +41,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.produceState
 import androidx.compose.ui.draw.clip
 import androidx.navigation.NavController
 import com.example.programfuncional.Presentation.ViewModel.ProgresoViewModel
@@ -53,11 +54,14 @@ fun ConceptosScreen(
     ProgresoViewModel: ProgresoViewModel,
     rutaId: Int
 ) {
+
+
     LaunchedEffect(rutaId) {
         TemaViewModel.cargarTemasPorRuta(rutaId)
     }
 
     val temas by TemaViewModel.temasPorRuta.collectAsState()
+    val progresoRuta by ProgresoViewModel.getProgresoRuta(rutaId).collectAsState()
 
     Column(
         modifier = Modifier
@@ -164,9 +168,10 @@ fun ConceptosScreen(
             }
 
             items(temas, key = { it.temaId }) { tema ->
+
                 ConceptCardConProgreso(
                     title = tema.nombre,
-                    progress = 0f,
+                    progresoRuta = tema.porcentaje.toFloat(),
                     background = Color(0xFFA0C1A7),
                     onClick = {
                         navController.navigate(NavRoutes.tema(tema.temaId))
@@ -192,7 +197,7 @@ fun ConceptosScreen(
 @Composable
 fun ConceptCardConProgreso(
     title: String,
-    progress: Float,
+    progresoRuta: Float,
     background: Color,
     onClick: () -> Unit
 ) {
@@ -208,18 +213,15 @@ fun ConceptCardConProgreso(
             Text(title, fontWeight = FontWeight.Bold, fontSize = 16.sp)
             Spacer(modifier = Modifier.height(8.dp))
             LinearProgressIndicator(
-                progress = progress,
+                progress = progresoRuta,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(6.dp),
-                color = Color(0xFF607D8B),
-                trackColor = Color(0xFFECEFF1)
+                    .height(10.dp)
+                    .clip(RoundedCornerShape(8.dp)),
+                color = Color(0xFF4CAF50),
             )
-            Text(
-                "${(progress * 100).toInt()}%",
-                fontSize = 12.sp,
-                modifier = Modifier.align(Alignment.End)
-            )
+            Text("${(progresoRuta * 100).toInt()}%", color = Color.Gray)
+
         }
     }
 }
