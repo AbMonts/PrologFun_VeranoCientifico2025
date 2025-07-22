@@ -27,6 +27,9 @@ interface TemaDAO {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertAll(temas: List<Tema>)
 
+    @Query("SELECT rutaId FROM Tema WHERE temaId = :temaId LIMIT 1")
+    suspend fun getRutaIdByTemaId(temaId: Int): Int?
+
 
 
 }
@@ -34,7 +37,11 @@ interface TemaDAO {
 @Dao
 interface ProgresoDAO {
     @Query("SELECT * FROM Progreso WHERE temaId = :temaId")
-    fun getProgreso(temaId: Int): Flow<Progreso>  //obtiene progreso de un tema por id
+    fun getProgreso(temaId: Int): Flow<Progreso>
+
+    @Query("SELECT COALESCE(SUM(puntos), 0) FROM progreso")
+    suspend fun obtenerPuntosTotales(): Int
+
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertProgreso(progress: Progreso)
@@ -44,11 +51,11 @@ interface ProgresoDAO {
         t.rutaId AS rutaId,
         COUNT(p.temaId) AS temasCompletados,
         COUNT(t.temaId) AS totalTemas,
-        SUM(p.puntos) AS totalPuntos
+        COALESCE(SUM(p.puntos), 0) AS totalPuntos
     FROM Tema t
     LEFT JOIN Progreso p ON t.temaId = p.temaId AND p.completado = 1
     WHERE t.rutaId = :rutaId
-""") //obtiene el proceso de alguna ruta
+""") //de los temas
     fun getProgresoPorRuta(rutaId: Int): Flow<ProgresoRuta>
 
     @Query("SELECT * FROM Progreso WHERE temaId = :temaId LIMIT 1")

@@ -40,11 +40,13 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.programfuncional.Presentation.ViewModel.ProgresoViewModel
 import com.example.programfuncional.Presentation.ViewModel.TemaViewModel
 
 @Composable
 fun TemaScreen(
     viewModel: TemaViewModel,
+    progresoViewModel: ProgresoViewModel,
     temaId: Int,
     onFinalizar: () -> Unit
 ) {
@@ -59,6 +61,8 @@ fun TemaScreen(
     val clipboardManager = LocalClipboardManager.current
     var copiado by remember { mutableStateOf(false) }
 
+
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -66,7 +70,7 @@ fun TemaScreen(
     ) {
         Spacer(modifier = Modifier.height(50.dp))
 
-        // Barra superior con progreso
+
         Surface(
             modifier = Modifier
                 .fillMaxWidth()
@@ -89,7 +93,7 @@ fun TemaScreen(
                 )
                 Spacer(modifier = Modifier.height(8.dp))
                 Text(
-                    "${(progreso * 100).toInt()}%", //se debe ir guardando el progreso hasta el 100%, no se puede reducir
+                    "${(progreso * 100).toInt()}%",
                     color = Color.White,
                     style = MaterialTheme.typography.bodySmall
                 )
@@ -98,7 +102,7 @@ fun TemaScreen(
 
         Spacer(modifier = Modifier.height(24.dp))
 
-        // Contenido principal
+
         Column(
             modifier = Modifier
                 .padding(horizontal = 20.dp)
@@ -130,7 +134,6 @@ fun TemaScreen(
                 }
             }
 
-            // Ejemplo al final
             tema?.ejemplos?.takeIf { it.isNotBlank() }?.let { ejemploTexto ->
                 Spacer(modifier = Modifier.height(24.dp))
 
@@ -177,7 +180,7 @@ fun TemaScreen(
             }
         }
 
-        // Botón inferior
+       // ------------ botones inferiores -------------
         Box(
             modifier = Modifier
                 .fillMaxWidth()
@@ -223,7 +226,7 @@ fun TemaScreen(
                             if (indice < parrafos.size - 1) {
                                 viewModel.siguienteParrafo()
                             } else {
-                                viewModel.marcarComoCompletado() //para poner en la pantalla conceptos un boton de completado
+                                viewModel.marcarComoCompletado(progresoViewModel)
                                 onFinalizar()
                             }
                         },

@@ -55,13 +55,14 @@ fun ConceptosScreen(
     rutaId: Int
 ) {
 
+    val temasProgreso by ProgresoViewModel.temasConProgreso.collectAsState()
+    val puntos by ProgresoViewModel.puntos.collectAsState()
 
     LaunchedEffect(rutaId) {
         TemaViewModel.cargarTemasPorRuta(rutaId)
+        ProgresoViewModel.cargarTemasConProgreso(rutaId)
+        ProgresoViewModel.cargarPuntosTotales()
     }
-
-    val temas by TemaViewModel.temasPorRuta.collectAsState()
-    val progresoRuta by ProgresoViewModel.getProgresoRuta(rutaId).collectAsState()
 
     Column(
         modifier = Modifier
@@ -93,7 +94,7 @@ fun ConceptosScreen(
                         modifier = Modifier.weight(1f)
                     )
                     Row(verticalAlignment = Alignment.CenterVertically) {
-                        Text("10", color = Color.Black, fontWeight = FontWeight.Bold)
+                        Text(puntos.toString(), color = Color.Black, fontWeight = FontWeight.Bold)
                         Spacer(modifier = Modifier.width(4.dp))
                         Image(
                             painter = painterResource(id = R.mipmap.cristal),
@@ -167,18 +168,21 @@ fun ConceptosScreen(
                 Spacer(modifier = Modifier.height(16.dp))
             }
 
-            items(temas, key = { it.temaId }) { tema ->
+            items(temasProgreso, key = { it.tema.temaId }) { temaConProgreso ->
+                val porcentaje = temaConProgreso.progreso?.porcentaje ?: 0f
 
                 ConceptCardConProgreso(
-                    title = tema.nombre,
-                    progresoRuta = tema.porcentaje.toFloat(),
+                    title = temaConProgreso.tema.nombre,
+                    progresoRuta = porcentaje / 100f, // si es porcentaje 0–100, normaliza a 0f–1f
                     background = Color(0xFFA0C1A7),
                     onClick = {
-                        navController.navigate(NavRoutes.tema(tema.temaId))
+                        navController.navigate(NavRoutes.tema(temaConProgreso.tema.temaId))
                     }
                 )
+
                 Spacer(modifier = Modifier.height(12.dp))
             }
+
 
             item {
                 Spacer(modifier = Modifier.height(70.dp))

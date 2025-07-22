@@ -28,6 +28,7 @@ import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -42,12 +43,20 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import com.example.programfuncional.Navigation.NavRoutes
+import com.example.programfuncional.Presentation.ViewModel.ProgresoViewModel
 import com.example.programfuncional.Presentation.ViewModel.RutaViewModel
 import com.example.programfuncional.R
 
 @Composable
-fun HomeScreen(navController: NavHostController, rutaViewModel: RutaViewModel) {
+fun HomeScreen(navController: NavHostController, rutaViewModel: RutaViewModel, progresoViewModel: ProgresoViewModel) {
+
     val rutas by rutaViewModel.rutas.collectAsState()
+    val puntos by progresoViewModel.puntos.collectAsState()
+
+
+    LaunchedEffect(true) {
+        progresoViewModel.cargarPuntosTotales()
+    }
 
     Column(
         modifier = Modifier
@@ -79,7 +88,7 @@ fun HomeScreen(navController: NavHostController, rutaViewModel: RutaViewModel) {
                     )
 
                     Row(verticalAlignment = Alignment.CenterVertically) {
-                        Text("10", color = Color.Black, fontWeight = FontWeight.Bold)
+                        Text(puntos.toString(), color = Color.Black, fontWeight = FontWeight.Bold)
                         Spacer(modifier = Modifier.width(4.dp))
                         Image(
                             painter = painterResource(id = R.mipmap.cristal),
@@ -151,16 +160,20 @@ fun HomeScreen(navController: NavHostController, rutaViewModel: RutaViewModel) {
             Spacer(modifier = Modifier.height(16.dp))
 
             rutas.forEach { ruta ->
+                val progreso by progresoViewModel.getProgresoRutaState(ruta.rutaId).collectAsState()
+
                 LearningPathCard(
                     title = ruta.nombre,
-                    progress = ruta.porcentaje,
+                    progress = progreso,
                     background = Color(0xFFA0C1A7),
                     onClick = {
                         navController.navigate("${NavRoutes.Conceptos}?rutaId=${ruta.rutaId}")
                     }
                 )
+
                 Spacer(modifier = Modifier.height(12.dp))
             }
+
         }
 
         Spacer(modifier = Modifier.weight(1f))

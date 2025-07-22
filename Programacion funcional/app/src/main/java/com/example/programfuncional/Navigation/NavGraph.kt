@@ -37,7 +37,8 @@ fun NavGraph(
         composable(NavRoutes.Home) {
             HomeScreen(
                 navController = navController,
-                rutaViewModel = rutaViewModel
+                rutaViewModel = rutaViewModel,
+                progresoViewModel = progresoViewModel
             )
         }
 
@@ -62,6 +63,7 @@ fun NavGraph(
             val temaId = backStackEntry.arguments?.getInt("temaId") ?: return@composable
             TemaScreen(
                 viewModel = temaViewModel,
+                progresoViewModel = progresoViewModel,
                 temaId = temaId,
                 onFinalizar = { navController.popBackStack() }
             )

@@ -1,16 +1,15 @@
 package com.example.programfuncional.Presentation.ViewModel
 
 
-import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.asLiveData
 import androidx.lifecycle.viewModelScope
-import com.example.programfuncional.Data.model.Progreso
 import com.example.programfuncional.Data.model.RutaAprendizaje
 import com.example.programfuncional.Data.model.Tema
+import com.example.programfuncional.Data.model.TemaProgreso
 import com.example.programfuncional.Domain.repository.ProgresoRepository
 import com.example.programfuncional.Domain.repository.TemaRepository
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -21,12 +20,6 @@ import kotlinx.coroutines.launch
 
 
 class TemaViewModel(private val repository: TemaRepository) : ViewModel() {
-
-
-    suspend fun obtenerRutaPorId(rutaId: Int): RutaAprendizaje? {
-        return repository.getRutaPorId(rutaId)
-    }
-
 
     private val _tema = MutableStateFlow<Tema?>(null)
     val tema: StateFlow<Tema?> = _tema
@@ -42,6 +35,7 @@ class TemaViewModel(private val repository: TemaRepository) : ViewModel() {
     private val _temasPorRuta = MutableStateFlow<List<Tema>>(emptyList())
     val temasPorRuta: StateFlow<List<Tema>> = _temasPorRuta
 
+
     fun cargarTemasPorRuta(rutaId: Int) {
         viewModelScope.launch {
             repository.getTemasByRuta(rutaId)
@@ -51,11 +45,6 @@ class TemaViewModel(private val repository: TemaRepository) : ViewModel() {
                 }
 
         }
-    }
-
-    fun obtenerTemasPorRuta(rutaId: Int): StateFlow<List<Tema>> {
-        return repository.getTemasByRuta(rutaId).distinctUntilChanged()
-            .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
     }
 
     fun cargarTema(temaId: Int) {
@@ -68,6 +57,20 @@ class TemaViewModel(private val repository: TemaRepository) : ViewModel() {
     fun siguienteParrafo() {
         if (_indice.value < parrafos.value.size - 1) {
             _indice.value++
+            guardarProgreso()
+
+        }
+    }
+
+    private fun guardarProgreso() {
+        val temaId = _tema.value?.temaId ?: return
+        val total = parrafos.value.size
+        if (total == 0) return
+
+        val progreso = ((_indice.value + 1).toFloat() / total.toFloat()) * 100f
+
+        viewModelScope.launch {
+            repository.guardarProgresoParcial(temaId, progreso)
         }
     }
 
@@ -77,24 +80,55 @@ class TemaViewModel(private val repository: TemaRepository) : ViewModel() {
         }
     }
 
-    fun marcarComoCompletado() {
-        println("Tema finalizado")
-    }
+    fun marcarComoCompletado(progresoViewModel: ProgresoViewModel) {
+        val tema = _tema.value ?: return
+        val puntos = 10
 
-    private val _temaActual = MutableStateFlow<Tema?>(null)
-    val temaActual: StateFlow<Tema?> = _temaActual
-
-    fun cargarTemaPorId(temaId: Int) {
         viewModelScope.launch {
-            _temaActual.value = repository.getTemaPorId(temaId)
+            repository.guardarProgresoParcial(tema.temaId, 100f)
+            repository.temaCompleto(tema.temaId, puntos)
+            delay(300)
+            progresoViewModel.cargarPuntosTotales()
         }
     }
 
-    // (Opcional) Obtener rutas disponibles si estás manejando esa tabla
-    val rutasDisponibles: StateFlow<List<RutaAprendizaje>> =
-        repository.getRutas()
-            .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
-    
+}
+
+class ProgresoViewModel(private val repository: ProgresoRepository) : ViewModel() {
+
+    private val _puntos = MutableStateFlow(0)
+    val puntos: StateFlow<Int> = _puntos
+
+    private val _temasConProgreso = MutableStateFlow<List<TemaProgreso>>(emptyList())
+    val temasConProgreso: StateFlow<List<TemaProgreso>> = _temasConProgreso
+
+    fun getProgresoRuta(rutaId: Int): StateFlow<Float> {
+        return repository.getProgresoRuta(rutaId)
+            .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), 0f)
+    }
+
+    fun cargarTemasConProgreso(rutaId: Int) {
+        viewModelScope.launch {
+            val temasProgreso = repository.getTemasConProgresoPorRuta(rutaId)
+            _temasConProgreso.value = temasProgreso
+        }
+    }
+
+    private val progresoPorRuta = mutableMapOf<Int, StateFlow<Float>>()
+
+    fun getProgresoRutaState(rutaId: Int): StateFlow<Float> {
+        return progresoPorRuta.getOrPut(rutaId) {
+            repository.getProgresoRuta(rutaId)
+                .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), 0f)
+        }
+    }
+
+
+    fun cargarPuntosTotales() {
+        viewModelScope.launch {
+            _puntos.value = repository.obtenerPuntosTotales()
+        }
+    }
 
 }
 
@@ -108,7 +142,6 @@ class TemaViewModelFactory(private val repository: TemaRepository) : ViewModelPr
     }
 }
 
-
 class RutaViewModel(private val repository: TemaRepository) : ViewModel() {
 
     val rutas: StateFlow<List<RutaAprendizaje>> = repository.getRutas()
@@ -118,23 +151,4 @@ class RutaViewModel(private val repository: TemaRepository) : ViewModel() {
             SharingStarted.WhileSubscribed(5000),
             emptyList()
         )
-}
-
-class ProgresoViewModel(private val repository: ProgresoRepository) : ViewModel() {
-    fun getProgreso(temaId: Int): LiveData<Progreso> =
-        repository.getProgreso(temaId).asLiveData()
-
-    fun temaCompleto(temaId: Int, puntos: Int) {
-        viewModelScope.launch {
-            repository.temaCompleto(temaId, puntos)
-        }
-
-
-    }
-    fun getProgresoRuta(rutaId: Int): StateFlow<Float> {
-        return repository.getProgresoRuta(rutaId)
-            .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), 0f)
-    }
-
-
 }
