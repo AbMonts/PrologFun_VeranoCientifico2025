@@ -36,12 +36,12 @@ import com.example.programfuncional.R
 fun WelcomeScreen(onStartClick: () -> Unit) {
     val context = LocalContext.current
 
-    // Verificar y mostrar Toast solo una vez al entrar a la pantalla
+
     LaunchedEffect(Unit) {
         val db = AppDatabase.getDatabase(context)
         val dbName = db.openHelper.databaseName
         val mensaje = if (db != null) {
-            "Base de datos creada: ${dbName ?: "Nombre no disponible"}"
+            "Bienvenido, Base de datos creada: ${dbName ?: "Nombre no disponible"}"
         } else {
             "No se ha creado la base de datos"
         }
@@ -58,12 +58,12 @@ fun WelcomeScreen(onStartClick: () -> Unit) {
     ) {
         Spacer(modifier = Modifier.height(40.dp))
 
-        // Logo + Título
+
         Row(verticalAlignment = Alignment.CenterVertically) {
             Box(
                 modifier = Modifier
                     .size(60.dp)
-                    .background(Color(0xFFA0C1A7)) // Verde pastel
+                    .background(Color(0xFFA0C1A7))
                     .padding(8.dp)
             ) {
 
@@ -75,10 +75,9 @@ fun WelcomeScreen(onStartClick: () -> Unit) {
                 )
             }
             Spacer(modifier = Modifier.width(8.dp))
-            Text("EasyLearn", fontSize = 32.sp, fontWeight = FontWeight.Bold)
+            Text("EasyLearn:D", fontSize = 32.sp, fontWeight = FontWeight.Bold)
         }
 
-        // Mensaje de bienvenida
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
             Text("Bienvenido", fontSize = 24.sp, fontWeight = FontWeight.Bold)
             Spacer(modifier = Modifier.height(8.dp))
@@ -89,7 +88,7 @@ fun WelcomeScreen(onStartClick: () -> Unit) {
             )
         }
 
-        // Botón "Empezar"
+
         Button(
             onClick = onStartClick,
             colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF4CAF50)),

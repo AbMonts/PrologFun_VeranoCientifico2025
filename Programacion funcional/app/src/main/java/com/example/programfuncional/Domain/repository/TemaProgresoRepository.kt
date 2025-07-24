@@ -57,7 +57,7 @@ class TemaRepository(
             )
         }
     }
-    
+
     suspend fun guardarProgresoParcial(temaId: Int, porcentaje: Float) {
         progresoDao.getProgresoSinFlow(temaId)?.let {
             val nuevo = it.copy(

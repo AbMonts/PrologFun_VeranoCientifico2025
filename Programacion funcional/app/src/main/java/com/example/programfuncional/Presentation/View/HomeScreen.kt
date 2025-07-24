@@ -1,5 +1,6 @@
 package com.example.programfuncional.Presentation.View
 
+import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -35,6 +36,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.LineHeightStyle
@@ -49,6 +51,8 @@ import com.example.programfuncional.R
 
 @Composable
 fun HomeScreen(navController: NavHostController, rutaViewModel: RutaViewModel, progresoViewModel: ProgresoViewModel) {
+
+    val context = LocalContext.current
 
     val rutas by rutaViewModel.rutas.collectAsState()
     val puntos by progresoViewModel.puntos.collectAsState()
@@ -167,7 +171,11 @@ fun HomeScreen(navController: NavHostController, rutaViewModel: RutaViewModel, p
                     progress = progreso,
                     background = Color(0xFFA0C1A7),
                     onClick = {
-                        navController.navigate("${NavRoutes.Conceptos}?rutaId=${ruta.rutaId}")
+                        if (ruta.nombre.equals("Teoría", ignoreCase = true)){
+                            navController.navigate("${NavRoutes.Conceptos}?rutaId=${ruta.rutaId}")
+                        } else {
+                            Toast.makeText(context, "Próximamente", Toast.LENGTH_SHORT).show()
+                        }
                     }
                 )
 

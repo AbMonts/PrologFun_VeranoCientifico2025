@@ -24,13 +24,11 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
 
         val app = application as MyApp
-
-        // Crear los ViewModels (sin Hilt por ahora)
+        
         val temaViewModel = ViewModelProvider(this, TemaViewModelFactory(app.temaRepository))[TemaViewModel::class.java]
         val rutaViewModel = RutaViewModel(app.temaRepository)
         val progresoViewModel = ProgresoViewModel(app.progresoRepository)
 
-        // Cargar rutas de ejemplo si no existen (solo la primera vez)
         lifecycleScope.launch {
             app.temaRepository.insertarRutas(
                 listOf(

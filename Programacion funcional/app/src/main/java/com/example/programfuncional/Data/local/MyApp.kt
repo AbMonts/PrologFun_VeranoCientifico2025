@@ -6,7 +6,6 @@ import com.example.programfuncional.Domain.repository.TemaRepository
 
 class MyApp : Application() {
 
-    // Base de datos y repositorios disponibles globalmente
     lateinit var database: AppDatabase
         private set
 
@@ -19,10 +18,9 @@ class MyApp : Application() {
     override fun onCreate() {
         super.onCreate()
 
-        // Inicializar la base de datos
         database = AppDatabase.getDatabase(this)
 
-        // Inicializar los repositorios pasando todos los DAOs necesarios
+
         temaRepository = TemaRepository(
             temaDao = database.temaDao(),
             rutaDao = database.rutaDao(),
